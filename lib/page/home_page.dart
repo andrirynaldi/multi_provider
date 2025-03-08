@@ -18,14 +18,47 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BlocBuilder<CounterBloc, int>(
-              bloc: myCounter,
-              builder: (context, state) {
-                return Text(
-                  '$state',
-                  style: TextStyle(fontSize: 50),
-                );
-              },
+            MultiBlocListener(
+              listeners: [
+                BlocListener<ThemeBloc, bool>(
+                  listener: (context, state) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Theme is ${state ? 'dark' : 'light'} activated'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  listenWhen: (previous, current) => previous != current,
+                ),
+                BlocListener<CounterBloc, int>(
+                  listener: (context, state) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Counter: $state'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  listenWhen: (previous, current) {
+                    if (current == 10) {
+                      return true;
+                    } else {
+                      return false;
+                    }
+                  },
+                ),
+              ],
+              child: BlocBuilder<CounterBloc, int>(
+                bloc: myCounter,
+                builder: (context, state) {
+                  return Text(
+                    '$state',
+                    style: TextStyle(fontSize: 50),
+                  );
+                },
+              ),
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
